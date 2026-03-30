@@ -56,7 +56,10 @@ jobs:
   generate-docs:
     name: Generate Docs
     needs: check-templates
-    if: always() && !cancelled() && needs.check-templates.result == 'success' || github.event_name == 'push'
+    if: |
+      (always() && !cancelled() && needs.check-templates.result == 'success' &&
+      (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)) ||
+      github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -71,7 +74,7 @@ jobs:
           fetch-depth: 1
 
       - name: Set up Go
-        uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6
         with:
           go-version-file: "go.mod"
           cache: true
